@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+import tempfile
 import uuid
 
 import fakeredis
@@ -23,8 +24,8 @@ from app.core.redis import get_redis
 from app.main import app
 from app.models.base import Base
 
-DB_PATH = f"/tmp/ws_phase3_{uuid.uuid4().hex}.db"
-DB_URL = f"sqlite+aiosqlite:///{DB_PATH}"
+DB_PATH = os.path.join(tempfile.gettempdir(), f"ws_phase3_{uuid.uuid4().hex}.db")
+DB_URL = f"sqlite+aiosqlite:///{DB_PATH.replace(os.sep, '/')}"
 
 
 async def _create_schema() -> None:
