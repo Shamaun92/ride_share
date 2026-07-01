@@ -59,7 +59,7 @@ class DriverRepository(BaseRepository[DriverProfile]):
         vehicle, ordered nearest-first. Returns (driver, distance_km) pairs.
 
         Bounding box is the index-friendly SQL prefilter; haversine refines in
-        Python. At scale this moves to Redis GEO (Phase 3) / PostGIS.
+        Python. At scale this moves to Redis GEO / PostGIS.
         """
         min_lat, max_lat, min_lng, max_lng = bounding_box(lat, lng, radius_km)
         stmt = (

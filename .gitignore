@@ -27,9 +27,10 @@ yarn-error.log*
 .env.*.local
 !.env.example
 
-# ---- Editor / OS ----
+# ---- Editor / OS / local tooling ----
 .vscode/
 .idea/
+.claude/
 .DS_Store
 Thumbs.db
 *.swp

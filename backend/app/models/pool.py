@@ -1,7 +1,7 @@
 """RidePool: a group of shared (pooled) rides served together.
 
-Phase 6 keeps pooling at the matching + billing layer: shared rides with nearby
-pickups are grouped into a pool and each pooled rider receives a discount. Full
+Pooling lives at the matching + billing layer: shared rides with nearby pickups
+are grouped into a pool and each pooled rider receives a discount. Full
 multi-stop trip sequencing is the next iteration.
 """
 from __future__ import annotations

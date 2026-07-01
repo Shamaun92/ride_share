@@ -1,4 +1,4 @@
-"""Phase 3 real-time tests: GEO dispatch, hub fan-out, and event broadcasts."""
+"""Real-time tests: GEO dispatch, hub fan-out, and event broadcasts."""
 from __future__ import annotations
 
 import asyncio

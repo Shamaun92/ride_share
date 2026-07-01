@@ -48,21 +48,21 @@ export default function RegisterPage() {
             <Field label="Password" hint="min 8 chars">
               <Input type="password" value={form.password} onChange={set("password")} placeholder="••••••••" required minLength={8} />
             </Field>
-            {err && <p className="rounded-xl2 bg-danger/8 px-3 py-2 text-sm text-danger">{err}</p>}
-            <Button type="submit" disabled={busy} className="w-full">{busy ? <Spinner /> : "Create account"}</Button>
+            {err && <p className="rounded-2xl bg-danger/8 px-3 py-2.5 text-sm text-danger">{err}</p>}
+            <Button size="lg" type="submit" disabled={busy} className="w-full">{busy ? <Spinner /> : "Create account"}</Button>
           </form>
 
           <p className="mt-6 text-sm text-slate2">
-            Already have one? <Link href="/login" className="font-medium text-teal-deep hover:underline">Sign in</Link>
+            Already have one? <Link href="/login" className="font-semibold text-teal-deep hover:underline">Sign in</Link>
           </p>
         </div>
       </div>
       <div className="relative hidden overflow-hidden bg-ink lg:block">
         <div className="console-grid absolute inset-0 opacity-90" />
         <div className="relative flex h-full flex-col justify-end p-12">
-          <div className="grid max-w-md grid-cols-3 gap-px overflow-hidden rounded-xl2 border border-white/10">
+          <div className="grid max-w-md grid-cols-3 gap-px overflow-hidden rounded-2xl border border-white/10">
             {[["RIDES", "live"], ["PRICING", "surge"], ["WALLET", "ledger"]].map(([l, v]) => (
-              <div key={l} className="bg-white/[0.03] px-4 py-5">
+              <div key={l} className="bg-white/[0.04] px-4 py-5">
                 <div className="text-[10px] uppercase tracking-wider text-white/45">{l}</div>
                 <div className="mt-1 font-mono text-sm font-bold text-white">{v}</div>
               </div>

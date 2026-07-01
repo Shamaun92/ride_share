@@ -1,4 +1,4 @@
-"""Phase 5 tests: scheduled rides, promo codes, notifications."""
+"""Tests: scheduled rides, promo codes, notifications."""
 from __future__ import annotations
 
 import uuid

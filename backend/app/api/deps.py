@@ -91,9 +91,8 @@ def get_refresh_payload(token: str) -> TokenPayload:
     return _decode(token, "refresh")
 
 
-# --------------------------------------------------------------------------- #
-# Phase 2: ride + driver-operations dependencies
-# --------------------------------------------------------------------------- #
+# The service imports below live here rather than at module top to avoid a
+# circular import between this module and the service layer.
 from app.models.driver import DriverProfile  # noqa: E402
 from app.repositories.driver import DriverRepository  # noqa: E402
 from app.services.driver_service import DriverService  # noqa: E402
@@ -129,9 +128,6 @@ async def get_current_driver_profile(
 CurrentDriver = Annotated[DriverProfile, Depends(get_current_driver_profile)]
 
 
-# --------------------------------------------------------------------------- #
-# Phase 4: wallet / payment / rating dependencies
-# --------------------------------------------------------------------------- #
 from app.services.payment_service import PaymentService  # noqa: E402
 from app.services.rating_service import RatingService  # noqa: E402
 from app.services.wallet_service import WalletService  # noqa: E402
@@ -158,9 +154,6 @@ def get_rating_service(session: DBSession) -> RatingService:
 RatingServiceDep = Annotated[RatingService, Depends(get_rating_service)]
 
 
-# --------------------------------------------------------------------------- #
-# Phase 5/6: notifications, promos, surge, scheduler, admin
-# --------------------------------------------------------------------------- #
 from app.services.notification_service import NotificationService  # noqa: E402
 from app.services.promo_service import PromoService  # noqa: E402
 from app.services.scheduler_service import SchedulerService  # noqa: E402

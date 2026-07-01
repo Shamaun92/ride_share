@@ -1,4 +1,4 @@
-"""Phase 6 tests: surge pricing, ride pooling, admin dashboard."""
+"""Tests: surge pricing, ride pooling, admin dashboard."""
 from __future__ import annotations
 
 import pytest

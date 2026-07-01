@@ -1,8 +1,8 @@
 """RideOffer: a dispatch offer of a ride to a specific nearby driver.
 
 Modelling dispatch as explicit offers (rather than an open pool) gives a clean
-audit trail, per-driver expiry, and the exact seam Phase 3 needs to push offers
-over WebSocket. The first driver to accept atomically claims the ride.
+audit trail, per-driver expiry, and a natural seam for pushing offers over
+WebSocket. The first driver to accept atomically claims the ride.
 """
 from __future__ import annotations
 

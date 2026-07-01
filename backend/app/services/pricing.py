@@ -6,7 +6,7 @@ and a surge multiplier, floored at a configured minimum. `estimate` runs at
 request time (duration inferred from distance and an assumed city speed);
 `finalize` runs at completion using the real elapsed trip time.
 
-Surge defaults to 1.0 — the multiplier is the seam Phase 6 plugs into.
+Surge defaults to 1.0x; callers pass a multiplier derived from live demand.
 """
 from __future__ import annotations
 

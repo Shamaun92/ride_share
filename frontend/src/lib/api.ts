@@ -74,14 +74,12 @@ async function authed<T>(path: string, init: RequestInit = {}): Promise<T> {
 const J = (b: unknown) => JSON.stringify(b);
 
 export const api = {
-  // auth
   login: (identifier: string, password: string) =>
     raw<TokenPair>("/auth/login", { method: "POST", body: J({ identifier, password }) }, false),
   registerRider: (b: { email: string; phone: string; full_name: string; password: string }) =>
     raw<User>("/auth/register", { method: "POST", body: J(b) }, false),
   me: () => authed<User>("/users/me"),
 
-  // rides
   requestRide: (b: RideRequestCreate) => authed<RideRequestResult>("/rides", { method: "POST", body: J(b) }),
   getRide: (id: string) => authed<Ride>(`/rides/${id}`),
   listRides: () => authed<Ride[]>("/rides"),
@@ -91,20 +89,16 @@ export const api = {
   rate: (id: string, score: number, comment?: string) =>
     authed<RatingResponse>(`/rides/${id}/rate`, { method: "POST", body: J({ score, comment: comment ?? null }) }),
 
-  // pricing / promo
   surge: (lat: number, lng: number) => authed<SurgeQuote>(`/pricing/surge?lat=${lat}&lng=${lng}`),
   quotePromo: (code: string, fare_poisha: number) =>
     authed<PromoQuoteResult>("/promos/quote", { method: "POST", body: J({ code, fare_poisha }) }),
 
-  // wallet
   wallet: () => authed<WalletStatement>("/wallet"),
   topup: (amount_bdt: number) => authed<{ balance_poisha: number; balance_bdt: number }>("/wallet/topup", { method: "POST", body: J({ amount_bdt }) }),
 
-  // notifications
   notifications: () => authed<NotificationList>("/notifications"),
   markAllRead: () => authed<{ marked_read: number }>("/notifications/read-all", { method: "POST" }),
 
-  // admin
   metrics: () => authed<AdminMetrics>("/admin/metrics"),
 };
 

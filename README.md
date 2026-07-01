@@ -1,72 +1,71 @@
 # Shohojatri
 
-A ride-hailing web app modeled on Uber/Pathao — riders request rides, drivers
-accept them, and both sides see the trip progress live over a WebSocket. Built
-as a full-stack portfolio project.
+A ride-hailing web app (think Uber or Pathao) where riders request rides,
+drivers accept them, and both sides follow the trip live over a WebSocket. I
+built it as a full-stack portfolio project.
 
-**Stack:** FastAPI · PostgreSQL · Redis · Next.js 14 · TypeScript · Tailwind · Docker
+**Stack:** FastAPI, PostgreSQL, Redis, Next.js 14, TypeScript, Tailwind, Docker.
 
 ---
 
-## What actually works
-
-Every item below is exercised by tests or wired end-to-end in the UI.
+## Features
 
 **Riders**
-- Register, log in, refresh tokens automatically on 401.
-- Request a ride: pick pickup + drop-off, choose vehicle (car / bike / CNG),
-  choose payment (wallet / cash), optionally opt into pooling or apply a promo.
-- See a live fare estimate that mirrors the backend pricing engine, including
-  surge multiplier at the pickup location.
-- Watch the trip on a live console: status timeline, driver card, animated
-  driver ping over an SVG map, receipt on completion, star-rate the driver.
-- Wallet with top-ups and a ledger-backed activity feed.
+- Register and log in. The frontend refreshes the access token automatically
+  when it expires, so sessions don't drop mid-ride.
+- Request a ride: choose pickup and drop-off, pick a vehicle (car, bike, or
+  CNG) and payment method (wallet or cash), and optionally pool the ride or add
+  a promo code.
+- Get a live fare estimate that matches the backend pricing engine, including
+  the current surge multiplier at the pickup point.
+- Track the trip on a live map: status timeline, driver details, the driver's
+  position updating in real time, and a receipt plus star rating at the end.
+- A wallet with top-ups and a running activity feed.
 - Ride history with fares and statuses.
 
 **Drivers**
-- Register with license + vehicle details, go online, stream location.
-- Receive nearby ride offers, accept/reject, then progress the trip:
+- Register with license and vehicle details, go online, and stream location.
+- Get offers for nearby rides, accept or reject them, and move the trip through
   `accepted → arrived → in_progress → completed`.
 
 **Admin**
-- Bootstrap the first admin via a secret-gated endpoint.
-- Console with platform metrics (rides, revenue, active drivers) from the ledger.
+- Promote the first admin through a secret-gated endpoint.
+- A metrics console (rides, revenue, active drivers) built from the ledger.
 
-**Behind the scenes**
-- **JWT auth** — short-lived access token (15 min) + long-lived refresh (7 days).
-  Refresh tokens rotate on every use; each `jti` is tracked in Redis so logout
-  and rotation cause instant revocation without a DB write.
-- **Real-time updates** — Redis pub/sub fans out ride events to any WebSocket
-  subscribed to that ride. Status changes, driver location, and pool joins all
-  flow through the same channel.
-- **Money in poisha** — all currency is stored as integer poisha (1 BDT = 100
-  poisha) to avoid float rounding. Fares compute as: booking fee + base +
-  distance + time, scaled by a vehicle multiplier and a surge multiplier,
-  floored at a minimum.
-- **Double-entry ledger** — every payment posts balanced debits and credits
-  across logical accounts (rider wallet, driver wallet, platform revenue, cash
-  clearing, promo expense).
-- **Hardening middleware** — request-id logging, security headers, per-user +
-  per-IP rate limits, and an `Idempotency-Key` replay guard on mutations.
+**Under the hood**
+- JWT auth with a short access token (15 min) and a longer refresh token (7
+  days). Refresh tokens rotate on each use and their IDs are tracked in Redis,
+  so logging out or rotating revokes them immediately without a database write.
+- Redis pub/sub pushes ride events (status changes, driver location, pool
+  joins) to every WebSocket watching that ride.
+- Money is stored as integer poisha (1 BDT = 100 poisha) to avoid
+  floating-point rounding. A fare is booking fee + base + distance + time,
+  scaled by vehicle and surge multipliers and floored at a minimum.
+- Payments post to a double-entry ledger, so every charge has balanced debits
+  and credits across the rider wallet, driver wallet, platform revenue, cash
+  clearing, and promo accounts.
+- Request middleware adds request-id logging, security headers, per-user and
+  per-IP rate limits, and an `Idempotency-Key` guard so a retried request never
+  charges twice.
 
 ---
 
-## Tech stack — and why
+## Tech stack
 
-| Layer | Choice | Why |
+| Layer | Choice | Notes |
 | --- | --- | --- |
-| API framework | FastAPI | Async, typed via Pydantic v2, free OpenAPI docs at `/docs`. |
-| ORM | SQLAlchemy 2.0 async | Real async DB access; type-hinted models. |
-| Database | PostgreSQL 16 | Transactions for money, native UUID PKs. |
-| Cache / realtime | Redis 7 | JWT revocation, pub/sub for WebSockets, rate-limit counters. |
+| API framework | FastAPI | Async, typed with Pydantic v2, and generates OpenAPI docs at `/docs`. |
+| ORM | SQLAlchemy 2.0 (async) | Async database access with typed models. |
+| Database | PostgreSQL 16 | Transactions for the money paths, native UUID keys. |
+| Cache / realtime | Redis 7 | Token revocation, pub/sub for WebSockets, rate-limit counters. |
 | Migrations | Alembic | Version-controlled schema. |
-| Frontend | Next.js 14 (App Router) | File-based routing, RSC-ready, TypeScript-native. |
-| Styling | Tailwind CSS | Design tokens as classes, no runtime CSS. |
-| Container | Docker Compose | One command spins up db + redis + api + nginx. |
+| Frontend | Next.js 14 (App Router) | File-based routing and TypeScript throughout. |
+| Styling | Tailwind CSS | Utility classes, no runtime CSS. |
+| Container | Docker Compose | One command brings up db, redis, api, and nginx. |
 
 ---
 
-## Architecture at a glance
+## Architecture
 
 ```
 ┌─────────────────┐   HTTP + WebSocket   ┌────────────────────┐
@@ -84,30 +83,33 @@ Every item below is exercised by tests or wired end-to-end in the UI.
                                  └─────────┘   └────────┘   └───────────┘
 ```
 
-**Backend is layered so business logic stays framework-agnostic:**
+The backend is layered so the business logic stays independent of the web
+framework:
 
 ```
-HTTP (routers)  →  Services (business logic, tx boundary)
+HTTP (routers)  →  Services (business logic, transaction boundary)
                 →  Repositories (data access)
                 →  Models (SQLAlchemy)
 ```
 
-- `backend/app/api/v1/endpoints/` — HTTP + WebSocket routes.
+- `backend/app/api/v1/endpoints/` — HTTP and WebSocket routes.
 - `backend/app/services/` — one service per concern: auth, rides, pricing,
   surge, pooling, wallet, ledger, ratings, notifications, scheduler, admin.
-- `backend/app/models/` — SQLAlchemy models + shared enums.
+- `backend/app/models/` — SQLAlchemy models and shared enums.
 - `backend/app/ws/` — connection manager and Redis-backed event fan-out.
 - `backend/app/core/` — config, DB, Redis, security, middleware, exceptions.
 
-**Frontend layout:**
-- `frontend/src/app/` — pages (App Router). Authed pages live under `(app)/`.
-- `frontend/src/lib/` — typed API client (auto-refresh on 401), auth context,
-  WebSocket hook, fare projection, formatters.
-- `frontend/src/components/` — Map, Nav, RideTimeline, Telemetry, UI primitives.
+On the frontend:
+
+- `frontend/src/app/` — pages (App Router); authed pages live under `(app)/`.
+- `frontend/src/lib/` — the API client (with auto token refresh), auth context,
+  WebSocket hook, fare projection, and formatters.
+- `frontend/src/components/` — Map, Nav, RideTimeline, Telemetry, and UI
+  primitives.
 
 ---
 
-## Ride lifecycle (state machine)
+## Ride lifecycle
 
 ```
 requested ──▶ accepted ──▶ arrived ──▶ in_progress ──▶ completed
@@ -117,31 +119,31 @@ requested ──▶ accepted ──▶ arrived ──▶ in_progress ──▶ c
 (no driver    (rider/     (rider/       (rider/
  in time)     driver)     driver)       driver)
 
-scheduled ──(due)──▶ requested   (scheduler_service dispatches)
+scheduled ──(due)──▶ requested   (dispatched by the scheduler)
 ```
 
-The service layer enforces the transitions. Illegal transitions raise a domain
-error that maps to a 409 in HTTP.
+The service layer enforces these transitions. An illegal transition raises a
+domain error that the API turns into a 409.
 
 ---
 
-## Run it locally
+## Running locally
 
-You need **Docker Desktop** and **Node.js LTS**.
+You'll need **Docker Desktop** and **Node.js LTS**.
 
 ### 1) Backend
 
 ```bash
 cd backend
-cp .env.example .env    # already good defaults for local
+cp .env.example .env    # defaults are fine for local
 docker compose up --build
 ```
 
-First run pulls Postgres + Redis (~500 MB) and builds the API image (2–5 min).
-Ready when you see `Application startup complete`.
+The first run pulls Postgres and Redis (~500 MB) and builds the API image, so
+give it a few minutes. It's ready when you see `Application startup complete`.
 
-- API: <http://localhost:8000/docs> (Swagger)
-- Via nginx: <http://localhost>
+- API and Swagger docs: <http://localhost:8000/docs>
+- Through nginx: <http://localhost>
 
 ### 2) Frontend
 
@@ -152,7 +154,7 @@ npm install
 npm run dev
 ```
 
-Open <http://localhost:3000>. Register → request a ride → watch the live console.
+Open <http://localhost:3000>, register, request a ride, and watch it track live.
 
 ### 3) Become an admin (optional)
 
@@ -162,7 +164,7 @@ curl -X POST http://localhost:8000/api/v1/admin/bootstrap \
   -d '{"email":"you@example.com","secret":"admin-secret-local"}'
 ```
 
-Sign out, sign back in, the **Console** tab appears in the nav.
+Sign out and back in, and the **Console** tab shows up in the nav.
 
 ---
 
@@ -174,14 +176,15 @@ pip install -r requirements-dev.txt
 pytest -q
 ```
 
-**50 tests, all passing** — covers auth, ride lifecycle, payments/ledger,
-scheduling + promos, surge + pooling + admin, WebSockets end-to-end, rate
-limiting + idempotency + security headers. Tests run on in-memory SQLite +
-`fakeredis`, so no Docker needed for the suite.
+The suite (50 tests) covers auth, the ride lifecycle, payments and the ledger,
+scheduling and promos, surge, pooling, admin metrics, the WebSocket endpoint
+end-to-end, and the rate-limiting / idempotency / security-header middleware.
+It runs against in-memory SQLite and `fakeredis`, so you don't need Docker to
+run it.
 
 ---
 
-## Repository layout
+## Project layout
 
 ```
 shohojatri/
@@ -196,7 +199,7 @@ shohojatri/
 │   │   ├── workers/      background workers
 │   │   └── ws/           WebSocket hub (Redis pub/sub)
 │   ├── alembic/          database migrations
-│   ├── tests/            50 pytest tests
+│   ├── tests/            pytest suite
 │   ├── docker-compose.yml
 │   └── .env.example
 └── frontend/
@@ -209,46 +212,17 @@ shohojatri/
 
 ---
 
-## Known limitations (be honest with reviewers)
+## Limitations
 
-These are deliberate portfolio-scope choices — not oversights:
+A few things are intentionally out of scope for a portfolio build:
 
-- **Map is an SVG projection**, not real streets. `Map.tsx` isolates the
-  projection so swapping in `react-leaflet` + OpenStreetMap tiles is a one-file
-  change.
-- **Payments are simulated.** The wallet + ledger are real (double-entry,
-  balanced), but no external payment gateway is wired in.
-- **Dispatch is proximity-based**, not ETA/traffic-aware — nearest online
-  driver within a configurable radius.
-- **Notifications are in-app only** (WebSocket + REST). No SMS/email/push.
-- **No production hosting.** Runs locally via Docker Compose; no k8s manifests
-  or CI/CD.
-
----
-
-## Common questions
-
-**Why one `User` table for riders and drivers?**
-Single identity, one credential path, RBAC via a `role` column. A driver is
-just a `User(role=driver)` with a 1:1 `DriverProfile`. Lets a person hold
-multiple roles later without duplicating auth.
-
-**Why store money as integer poisha?**
-Float arithmetic loses precision on money. Poisha (1/100 BDT) keeps all fare
-math in integers; formatting happens at the edge.
-
-**Why Redis for both JWT and WebSockets?**
-Two problems, one primitive. Refresh-token `jti`s live in Redis with a TTL —
-logout deletes the key, rotation replaces it, so revocation is O(1) with no DB
-write. The WebSocket hub subscribes to a per-ride Redis channel, so any API
-worker can publish a ride event and every connected client sees it.
-
-**How do you prevent double-billing on retries?**
-Mutations accept an `Idempotency-Key` header; the middleware caches the
-response for the configured TTL and replays it on retry.
-
-**What would you change for production?**
-Real map tiles, payment gateway, push notifications, dispatch that considers
-ETA/traffic, horizontal scaling for the WebSocket hub (Redis pub/sub already
-supports this), managed Postgres + Redis, structured audit logs shipped to a
-SIEM, and rate-limit counters keyed on authenticated user + route bucket.
+- The map is a hand-drawn SVG, not real street tiles. The projection is
+  isolated in `Map.tsx`, so swapping in react-leaflet with OpenStreetMap tiles
+  would be a contained change.
+- Payments are simulated. The wallet and ledger are real and balanced, but
+  there's no external payment gateway.
+- Dispatch picks the nearest available driver within a radius; it doesn't
+  account for ETA or traffic.
+- Notifications are in-app only (WebSocket and REST) — no SMS, email, or push.
+- It runs locally with Docker Compose. There's no cloud deployment, CI, or
+  Kubernetes setup.

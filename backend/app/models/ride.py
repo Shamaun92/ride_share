@@ -2,8 +2,8 @@
 
 `rider_id` references the rider User; `driver_id` is null until a driver claims
 the ride. Per-transition timestamps are denormalized for analytics and SLA
-reporting. Fare columns are populated by the placeholder estimator now and the
-real pricing engine in Phase 4.
+reporting. `estimated_fare` is set by the pricing engine at request time and
+`final_fare` on completion.
 """
 from __future__ import annotations
 
@@ -76,12 +76,11 @@ class Ride(Base, UUIDMixin, TimestampMixin):
     estimated_fare: Mapped[float | None] = mapped_column(Float, nullable=True)
     final_fare: Mapped[float | None] = mapped_column(Float, nullable=True)
 
-    # Scheduling (Phase 5): when set and in the future, the ride starts SCHEDULED
-    # and is dispatched by the due-ride worker.
+    # When set and in the future, the ride starts SCHEDULED and is dispatched
+    # by the due-ride worker.
     scheduled_for: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True, index=True
     )
-    # Promo (Phase 5)
     promo_code_id: Mapped[uuid.UUID | None] = mapped_column(
         Uuid(as_uuid=True),
         ForeignKey("promo_codes.id", ondelete="SET NULL"),
@@ -90,9 +89,8 @@ class Ride(Base, UUIDMixin, TimestampMixin):
     discount_poisha: Mapped[int] = mapped_column(
         Integer, default=0, nullable=False
     )
-    # Surge (Phase 6): basis points, 10000 = 1.0x
+    # Surge multiplier in basis points, 10000 = 1.0x
     surge_bps: Mapped[int] = mapped_column(Integer, default=10000, nullable=False)
-    # Pooling (Phase 6)
     is_shared: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     pool_id: Mapped[uuid.UUID | None] = mapped_column(
         Uuid(as_uuid=True),

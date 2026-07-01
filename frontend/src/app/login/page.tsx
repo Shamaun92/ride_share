@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Logo } from "@/components/Logo";
+import { DispatchMap } from "@/components/Map";
 import { Button, Field, Input, Spinner } from "@/components/ui";
 import { useAuth } from "@/lib/auth";
 import { ApiError } from "@/lib/api";
@@ -42,14 +43,14 @@ export default function LoginPage() {
             <Field label="Password">
               <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" autoComplete="current-password" required />
             </Field>
-            {err && <p className="rounded-xl2 bg-danger/8 px-3 py-2 text-sm text-danger">{err}</p>}
-            <Button type="submit" disabled={busy} className="w-full">
+            {err && <p className="rounded-2xl bg-danger/8 px-3 py-2.5 text-sm text-danger">{err}</p>}
+            <Button size="lg" type="submit" disabled={busy} className="w-full">
               {busy ? <Spinner /> : "Sign in"}
             </Button>
           </form>
 
           <p className="mt-6 text-sm text-slate2">
-            New here? <Link href="/register" className="font-medium text-teal-deep hover:underline">Create an account</Link>
+            New here? <Link href="/register" className="font-semibold text-teal-deep hover:underline">Create an account</Link>
           </p>
         </div>
       </div>
@@ -62,7 +63,16 @@ function AuthAside() {
   return (
     <div className="relative hidden overflow-hidden bg-ink lg:block">
       <div className="console-grid absolute inset-0 opacity-90" />
-      <div className="relative flex h-full flex-col justify-end p-12">
+      <div className="relative flex h-full flex-col justify-between p-12">
+        <div className="max-w-md rounded-3xl border border-white/10 bg-white/[0.04] p-2 shadow-console">
+          <div className="h-56 overflow-hidden rounded-2xl">
+            <DispatchMap pickup={{ lat: 23.7806, lng: 90.4074 }} dropoff={{ lat: 23.7461, lng: 90.3742 }} driver={{ lat: 23.7702, lng: 90.3999 }} active />
+          </div>
+          <div className="flex items-center justify-between px-3 py-2.5 font-mono text-[11px] uppercase tracking-wider text-white/50">
+            <span className="flex items-center gap-2"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-jade" /> Driver en route</span>
+            <span>ETA 6 min</span>
+          </div>
+        </div>
         <blockquote className="max-w-md">
           <p className="font-display text-2xl font-medium leading-snug text-white">
             “Every trip is a live channel — the moment a driver moves, you see it.”

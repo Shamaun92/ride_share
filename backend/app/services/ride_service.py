@@ -87,9 +87,7 @@ class RideService:
         self.pools = PoolService(session)
         self.notifications = NotificationService(session, redis)
 
-    # ------------------------------------------------------------------ #
-    # Rider: request a ride
-    # ------------------------------------------------------------------ #
+    # --- Rider: request a ride ---
     async def request_ride(
         self, rider: User, data: RideRequestCreate
     ) -> RideRequestResult:
@@ -170,9 +168,7 @@ class RideService:
             ride=self._serialize_ride(fresh), drivers_notified=notified
         )
 
-    # ------------------------------------------------------------------ #
-    # Shared: read
-    # ------------------------------------------------------------------ #
+    # --- Reads ---
     async def get_ride_for_user(
         self, ride_id: uuid.UUID, user: User
     ) -> RideRead:
@@ -209,9 +205,7 @@ class RideService:
             my_rating=RatingRead.model_validate(my_rating) if my_rating else None,
         )
 
-    # ------------------------------------------------------------------ #
-    # Rider/Driver: cancel
-    # ------------------------------------------------------------------ #
+    # --- Rider/Driver: cancel ---
     async def cancel_ride(
         self, ride_id: uuid.UUID, user: User, reason: str | None
     ) -> RideRead:
@@ -273,9 +267,7 @@ class RideService:
             )
         return read
 
-    # ------------------------------------------------------------------ #
-    # Driver: dispatch + progression
-    # ------------------------------------------------------------------ #
+    # --- Driver: dispatch + progression ---
     async def list_offers(self, driver: DriverProfile) -> list[RideOfferRead]:
         offers = await self.offers.list_pending_for_driver(driver.id, _now())
         return [self._serialize_offer(o) for o in offers]
@@ -408,9 +400,7 @@ class RideService:
         )
         return read
 
-    # ------------------------------------------------------------------ #
-    # Internals
-    # ------------------------------------------------------------------ #
+    # --- Internals ---
     async def _find_nearby_drivers(
         self, lat: float, lng: float, vehicle_type
     ) -> list[tuple[DriverProfile, float]]:
@@ -577,7 +567,7 @@ class RideService:
                 return CancelledBy.DRIVER
         raise PermissionDeniedError("You cannot cancel this ride")
 
-    # ------------------------------- serializers ------------------------ #
+    # --- Serializers ---
     @staticmethod
     def _driver_summary(driver: DriverProfile) -> DriverSummary:
         vehicle = next(

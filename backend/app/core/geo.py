@@ -1,8 +1,8 @@
 """Geospatial helpers.
 
-Phase 2 uses a bounding-box prefilter + haversine refinement on the drivers'
-denormalized lat/lng. This is correct and adequate at small scale; Phase 3
-moves hot-path proximity to Redis GEO, and PostGIS is the option for heavy
+Proximity uses a bounding-box prefilter plus haversine refinement on the
+drivers' denormalized lat/lng, which is adequate at small scale. Hot-path
+proximity runs through Redis GEO; PostGIS would be the next step for heavy
 spatial querying.
 """
 from __future__ import annotations

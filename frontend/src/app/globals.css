@@ -12,12 +12,14 @@ html, body {
   background: theme("colors.paper");
   color: theme("colors.ink");
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 body { font-family: var(--font-body), system-ui, sans-serif; }
 
 .tnum { font-variant-numeric: tabular-nums; }
 
+/* subtle grid used on dark surfaces (auth aside, hero preview) */
 .console-grid {
   background-image:
     linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
@@ -25,8 +27,25 @@ body { font-family: var(--font-body), system-ui, sans-serif; }
   background-size: 22px 22px;
 }
 
+/* shimmer sweep for skeleton loaders */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: theme("colors.line");
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.65), transparent);
+  animation: shimmer 1.6s infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; }
 }
 
 ::selection { background: theme("colors.teal.DEFAULT"); color: white; }
+
+* { -webkit-tap-highlight-color: transparent; }

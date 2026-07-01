@@ -1,4 +1,4 @@
-"""Phase 4 tests: fare engine, ledger, wallet, settlement, refunds, ratings."""
+"""Payment tests: fare engine, ledger, wallet, settlement, refunds, ratings."""
 from __future__ import annotations
 
 import pytest

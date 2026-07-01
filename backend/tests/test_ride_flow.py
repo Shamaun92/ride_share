@@ -1,4 +1,4 @@
-"""Phase 2 integration tests: dispatch, lifecycle, race, RBAC, transitions."""
+"""Integration tests: dispatch, lifecycle, race, RBAC, transitions."""
 from __future__ import annotations
 
 import pytest

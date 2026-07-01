@@ -65,12 +65,12 @@ class Settings(BaseSettings):
     PLATFORM_COMMISSION_BPS: int = 2000    # 20.00% in basis points
     CANCELLATION_FEE_POISHA: int = 3000    # 30 BDT late-cancel fee
 
-    # ---- Surge (Phase 6) ----
+    # ---- Surge ----
     SURGE_ENABLED: bool = True
     SURGE_MAX_BPS: int = 30000             # cap at 3.0x
     SURGE_DEMAND_RADIUS_KM: float = 3.0
 
-    # ---- Pooling (Phase 6) ----
+    # ---- Pooling ----
     POOL_DISCOUNT_BPS: int = 2500          # 25% off for shared rides
     POOL_MATCH_RADIUS_KM: float = 1.5
     POOL_DEFAULT_CAPACITY: int = 2
@@ -78,7 +78,7 @@ class Settings(BaseSettings):
     # ---- Admin ----
     ADMIN_BOOTSTRAP_SECRET: str | None = None
 
-    # ---- Hardening (Phase 7) ----
+    # ---- Hardening ----
     RATE_LIMIT_ENABLED: bool = True
     RATE_LIMIT_DEFAULT_PER_MIN: int = 60   # per-user, sensitive mutations
     RATE_LIMIT_AUTH_PER_MIN: int = 20      # per-IP, auth endpoints

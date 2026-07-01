@@ -82,10 +82,10 @@ export default function AdminPage() {
 
 function Tile({ icon, label, value, accent }: { icon: React.ReactNode; label: string; value: string; accent?: boolean }) {
   return (
-    <Card className={`p-4 ${accent ? "bg-ink" : ""}`}>
-      <span className={accent ? "text-jade" : "text-teal"}>{icon}</span>
-      <div className={`mt-3 font-mono text-xl font-bold tnum ${accent ? "text-white" : "text-ink"}`}>{value}</div>
-      <div className={`text-[11px] uppercase tracking-wider ${accent ? "text-white/50" : "text-slate2"}`}>{label}</div>
+    <Card className={`p-5 ${accent ? "border-transparent bg-ink" : ""}`}>
+      <span className={`grid h-10 w-10 place-items-center rounded-full ${accent ? "bg-white/10 text-jade" : "bg-teal-soft text-teal-deep"}`}>{icon}</span>
+      <div className={`mt-3 font-mono text-2xl font-bold tnum ${accent ? "text-white" : "text-ink"}`}>{value}</div>
+      <div className={`text-[11px] font-semibold uppercase tracking-wider ${accent ? "text-white/50" : "text-slate2"}`}>{label}</div>
     </Card>
   );
 }

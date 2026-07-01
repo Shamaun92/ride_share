@@ -1,4 +1,4 @@
-"""Phase 7 tests: request context, security headers, rate limiting,
+"""Hardening tests: request context, security headers, rate limiting,
 idempotency, and audit logging."""
 from __future__ import annotations
 
